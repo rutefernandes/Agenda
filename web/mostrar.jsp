@@ -4,6 +4,7 @@
     Author     : rute
 --%>
 
+<%@page import="models.Contato"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -12,6 +13,20 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <h2>Informações do contato</h2>
+        <% Contato contato = (Contato)request.getAttribute("contato");
+        if(contato!=null){
+        %>
+        <ul>
+            <li>Nome: <%= contato.getNome() %></li>
+            <li>Telefone: <%= contato.getTelefone() %></li>
+            <li>Email: <%= contato.getEmail() %></li>
+            <li>Estado: <%= contato.getEndereco().getEstado() %></li>
+            <li>Cidade: <%= contato.getEndereco().getCidade() %></li>
+            <li>Bairro: <%= contato.getEndereco().getBairro() %></li>
+            <li>Rua: <%= contato.getEndereco().getRua() %></li>
+            <li>Número: <%= contato.getEndereco().getNumero() %></li>
+        </ul>
+        <% }%>
     </body>
 </html>

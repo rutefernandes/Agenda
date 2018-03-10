@@ -1,7 +1,6 @@
 package controllers;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,25 +11,28 @@ import models.Contato;
 import models.Endereco;
 
 public class ServletContato extends HttpServlet {
-    public static Agenda agenda;
+    public static Agenda agenda = new Agenda();
             
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String action = request.getParameter("action");
         String foward = "";
-        String email = request.getParameter("form_email");
+        String strId = request.getParameter("id");
+        int id = strId != null ? Integer.parseInt(strId) : -1;
         Contato c;
         if(action.equalsIgnoreCase("update")){
-            c = agenda.editarContato(email);
+            c = agenda.mostrarContato(id);
             request.setAttribute("contato", c);
+            request.setAttribute("id", id);
             foward = "/cadastrar.jsp";
         } else if(action.equalsIgnoreCase("delete")){
-            agenda.deletarContato(email);
+            agenda.deletarContato(id);
             request.setAttribute("contatos", agenda);
             foward = "/index.jsp";
         } else if(action.equalsIgnoreCase("read")){
-            c = agenda.mostrarContato(email);
+            c = agenda.mostrarContato(id);
+            System.out.println(c.getNome());
             request.setAttribute("contato", c);
             foward = "/mostrar.jsp";
         }
@@ -42,22 +44,33 @@ public class ServletContato extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String hidden = request.getParameter("action");
+        
         Contato contato = new Contato();
         Endereco endereco = new Endereco();
-        endereco.setEstado(request.getParameter("form_state"));
-        endereco.setCidade(request.getParameter("form_city"));
-        endereco.setBairro(request.getParameter("form_neig"));
-        endereco.setRua(request.getParameter("form_street"));
-        endereco.setNumero(request.getParameter("form_number"));
+        endereco.setEstado(request.getParameter("state"));
+        endereco.setCidade(request.getParameter("city"));
+        endereco.setBairro(request.getParameter("neig"));
+        endereco.setRua(request.getParameter("street"));
+        endereco.setNumero(request.getParameter("number"));
         
         contato.setEndereco(endereco);
-        contato.setNome(request.getParameter("form_name"));
-        contato.setEmail(request.getParameter("form_email"));
-        contato.setTelefone(request.getParameter("form_tel"));
+        contato.setNome(request.getParameter("name"));
+        contato.setEmail(request.getParameter("email"));
+        contato.setTelefone(request.getParameter("tel"));
         
-        agenda.cadastrarContato(contato);
-        RequestDispatcher view = request.getRequestDispatcher("index.jsp");
+        String strId = request.getParameter("id");
+        int id = strId != null ? Integer.parseInt(strId) : -1;
+        
+        
+        if(id != -1 && hidden != null && hidden.equals("put")){
+            agenda.editarContato(id, contato);
+        } else {
+            agenda.cadastrarContato(contato);
+        }
         request.setAttribute("contatos", agenda);
+        RequestDispatcher view = request.getRequestDispatcher("index.jsp");
+        
         view.forward(request,response);
     }
 
